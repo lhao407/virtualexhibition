@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<script type="text/javascript">
+		function CheckLogin()
+		{
+			console.log("check");
+			var storage = window.sessionStorage;
+			var id = storage.getItem("customerId");
+			if (id == undefined)
+			{
+				console.log("未登录");
+				window.location.href="index.html";
+			}
+		}
+
+	</script>
+</head>
+<body onload="CheckLogin()">
+
+</body>
+</html>

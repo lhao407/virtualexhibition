@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>虚拟展馆演示</title>
+    <style>
+      html {
+        box-sizing: border-box;
+      }
+      *, *:before, *:after {
+        box-sizing: inherit;
+      }
+      body {
+        margin: 0;
+        background: #444;
+      }
+      #gameContainer {
+        width: 100vw;
+        height: 100vh;
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      /* try to handle mobile dialog */
+      canvas + * {
+        z-index: 2;
+      }
+      .logo {
+          display: block;
+          max-width: 100vw;
+          max-height: 70vh;
+      }
+
+      .progress {
+          margin: 1.5em;
+          border: 1px solid white;
+          width: 50vw;
+          display: none;
+      }
+      .progress .full {
+          margin: 2px;
+          background: white;
+          height: 1em;
+          transform-origin: top left;
+      }
+
+      #loader {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .spinner,
+      .spinner:after {
+        border-radius: 50%;
+        width: 5em;
+        height: 5em;
+      }
+      .spinner {
+        margin: 10px;
+        font-size: 10px;
+        position: relative;
+        text-indent: -9999em;
+        border-top: 1.1em solid rgba(255, 255, 255, 0.2);
+        border-right: 1.1em solid rgba(255, 255, 255, 0.2);
+        border-bottom: 1.1em solid rgba(255, 255, 255, 0.2);
+        border-left: 1.1em solid #ffffff;
+        transform: translateZ(0);
+        animation: spinner-spin 1.1s infinite linear;
+      }
+      @keyframes spinner-spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #98bf21;
+}
+
+    </style>
+
+
+  </head>
+
+  <body onload="CheckLogin()">
+    <div id="gameContainer"></div>
+    <div id="loader">
+      <img class="logo" src="logo.png" width="200" height="200">
+      <div class="spinner"></div>
+      <div class="progress"><div class="full"></div></div>
+    </div>
+    <div>
+      <ul style=display:none class="layui-nav layui-nav-tree layui-layout-right">
+      <li class="layui-nav-item" lay-unselect="">
+        <a href="javascript:;"><img src="img/user.png" class="layui-nav-img">我</a>
+        <dl class="layui-nav-child">
+          <dd><a href="javascript:;"  onclick="Logout">退出</a></dd>
+        </dl>
+      </li>
+      </ul>
+    </div>
+    <script src="layui/layui.js" charset="utf-8"></script>
+
+  <!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+    <script>
+
+      layui.use('element', function(){
+        var element = layui.element; //导航的hover效果、二级菜单等功能，需要依赖element模块
+
+        //监听导航点击
+        element.on('nav(demo)', function(elem){
+          console.log(elem)
+          layer.msg(elem.text());
+        });
+      });
+    </script>
+  </body>
+
+  <script src="Build/UnityLoader.js"></script>
+  <script>
+  var gameInstance = UnityLoader.instantiate("gameContainer", "Build/exhibition.json", {onProgress: UnityProgress});
+  function UnityProgress(gameInstance, progress) {
+    if (!gameInstance.Module) {
+      return;
+    }
+    const loader = document.querySelector("#loader");
+    if (!gameInstance.progress) {
+      const progress = document.querySelector("#loader .progress");
+      progress.style.display = "block";
+      gameInstance.progress = progress.querySelector(".full");
+      loader.querySelector(".spinner").style.display = "none";
+    }
+    gameInstance.progress.style.transform = `scaleX(${progress})`;
+    if (progress === 1 && !gameInstance.removeTimeout) {
+      gameInstance.removeTimeout = setTimeout(function() {
+          loader.style.display = "none";
+      }, 200);
+    }
+
+  }
+    function GetUserName(n)
+    {
+
+      if (!gameInstance.Module)
+        return;
+
+        gameInstance.SendMessage('User', 'UpdateUserName', n);
+        console.log('当前用户为：'+ n);
+    }
+
+  </script>
+  <script src="js/Bmob.js"></script>
+  <script type="text/javascript">
+    function CheckLogin()
+    {
+      Bmob.initialize("fff70f3c89b1b09c6276dddda447535e", "0cf5096360c512a2d5559df9175f1488");
+
+      var currentUser = Bmob.User.current();
+
+      if(currentUser != null)
+      {
+         var name = currentUser.get('username');
+         if (name != undefined || name != null)
+         {
+           console.log(name +"状态：在线");
+           //GetUserName(name);
+         }
+      }
+      else {
+        console.log("未登录");
+        window.location.href="login.html";
+      }
+
+    }
+    function Logout()
+    {
+      Bmob.initialize("fff70f3c89b1b09c6276dddda447535e", "0cf5096360c512a2d5559df9175f1488");
+
+      Bmob.User.logOut();
+
+      window.location.href="login.html";
+
+    }
+    function HideMenu()
+      {
+        //$("ul").hide();
+      }
+    function ShowMenu()
+      {
+        $("ul").show();
+      }
+  </script>
+
+</html>
