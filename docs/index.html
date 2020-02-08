@@ -141,28 +141,33 @@
     }
 
   </script>
-  <script src="js/Bmob.js"></script>
+  <script src="js/bmob.js"></script>
   <script type="text/javascript">
     function CheckLogin()
     {
-      Bmob.initialize("fff70f3c89b1b09c6276dddda447535e", "0cf5096360c512a2d5559df9175f1488");
+      try{
+          Bmob.initialize("fff70f3c89b1b09c6276dddda447535e", "0cf5096360c512a2d5559df9175f1488");
+          var currentUser = Bmob.User.current();
 
-      var currentUser = Bmob.User.current();
-
-      if(currentUser != null)
-      {
-         var name = currentUser.get('username');
-         if (name != undefined || name != null)
-         {
-           console.log(name +"状态：在线");
-           //GetUserName(name);
-         }
+          if(currentUser != null)
+          {
+             var name = currentUser.get('username');
+             if (name != undefined || name != null)
+             {
+               console.log(name +"状态：在线");
+               //GetUserName(name);
+             }
+          }
+          else {
+            console.log("未登录");
+            window.location.href="login.html";
+          }
       }
-      else {
-        console.log("未登录");
+      catch(err)
+      {
+        alert(err)
         window.location.href="login.html";
       }
-
     }
     function Logout()
     {
